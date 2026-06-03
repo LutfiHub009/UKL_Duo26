@@ -1,23 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { User, Search, Mail, Loader2, FolderKanban } from "lucide-react";
 import { Sidebar } from "@/components/sidebar";
 import { AuthGuard } from "@/components/AuthGuard";
 import { WalletSection } from "@/components/WalletSection";
 
-// Tipe data profil dasar dari GET /auth/profile
+// Tipe data profil dasar 
 type UserProfile = {
   id: number;
   username: string;
   email: string;
 };
 
-// Struktur data Project yang disesuaikan menggunakan 'title'
+// Struktur data Project 
 type ProjectItem = {
   id: number | string;
-  title: string;        // Mengubah 'name' menjadi 'title' sesuai data database Anda
-  description?: string;  // Field deskripsi dari database
+  title: string;        
+  description?: string;  
   totalCost?: number | string;
   cost?: number | string;
   status?: string;
@@ -104,19 +105,6 @@ export default function ProfileDashboard() {
         <Sidebar activePage="profile" />
 
         <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background text-foreground transition-all duration-300">
-          <header className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-5 border-b border-border bg-popover gap-4">
-            <div className="relative w-full sm:w-96">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-                size={18}
-              />
-              <input
-                type="text"
-                placeholder="Search projects, tags..."
-                className="w-full bg-input border border-border rounded-lg py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-              />
-            </div>
-          </header>
 
           {isLoading ? (
             <div className="flex flex-col items-center justify-center flex-1 py-40 gap-2">
@@ -144,11 +132,15 @@ export default function ProfileDashboard() {
                   </h2>
 
                   <div className="flex flex-col items-center mb-8">
-                    <img
-                      src="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=200&auto=format&fit=crop"
-                      alt={profile?.username || "User"}
-                      className="w-28 h-28 rounded-full object-cover mb-4 border-2 border-[#333]"
-                    />
+                    <div className="relative w-28 h-28 mb-4 rounded-full overflow-hidden border-2 border-[#333]">
+                      <Image
+                        src="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=200&auto=format&fit=crop"
+                        alt={profile?.username || "User"}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
                     <h3 className="text-xl font-bold">
                       {profile?.username || "User"}
                     </h3>
@@ -222,10 +214,12 @@ export default function ProfileDashboard() {
                           >
                             <div>
                               <div className="relative h-48 bg-card/80">
-                                <img
+                                <Image
                                   src={project.imageUrl || "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=600&auto=format&fit=crop"}
-                                  alt={project.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  alt={project.title || "Project image"}
+                                  fill
+                                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                  unoptimized
                                 />
                                 <span className="absolute top-3 right-3 bg-popover/70 backdrop-blur-sm text-popover-foreground text-xs font-bold px-3 py-1 rounded-full uppercase">
                                   {project.status || "WIP"}
@@ -237,7 +231,7 @@ export default function ProfileDashboard() {
                                   {project.title || "Untitled Project"}
                                 </h3>
                                 {/* Menampilkan Deskripsi Proyek */}
-                                <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2rem] leading-relaxed">
+                                <p className="text-xs text-muted-foreground line-clamp-2 min-h-8 leading-relaxed">
                                   {project.description || "No description provided for this project build."}
                                 </p>
                               </div>

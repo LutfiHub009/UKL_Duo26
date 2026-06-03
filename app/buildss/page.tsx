@@ -1,117 +1,134 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react"; // Tambahkan useEffect
-import { Plus, Search, Loader2 } from "lucide-react"; // Tambahkan Loader2 untuk spinner
+import { useMemo, useState, useEffect } from "react";
+import {
+  Plus,
+  Search,
+  Loader2,
+  Trash2,
+  Edit3,
+  FolderKanban,
+} from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { Sidebar } from "@/components/sidebar";
 import { AuthGuard } from "@/components/AuthGuard";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; 
+import Image from "next/image";
 
-// Sesuaikan tipe Project dengan struktur asli dari response Swagger Anda
 type Project = {
   id: number;
   title: string;
-  description: string;
-  imageUrl: string;
-  status: "Complete" | "WIP" | "Planning";
-  progress: number;
-  totalSpent: string;
+  description?: string;
+  imageUrl?: string;
+  status?: string;
+  progress?: number | string;
+  totalCost?: number | string;
+  cost?: number | string;
+  totalSpent?: number | string;
   userId: number;
-  tags: string[];
 };
 
-// Kita jadikan FILTER_TAGS ini dinamis atau default sementara
-const FILTER_TAGS = ["Toyota", "Avanza", "Sleeper", "WIP"];
+type UserProfile = {
+  id: number;
+  username: string;
+};
 
-const getStatusBadgeStyle = (status: Project["status"]) => {
-  switch (status) {
-    case "Complete":
-      return "bg-green-500 text-black font-semibold border-transparent";
-    case "WIP":
-      return "bg-muted/90 text-foreground backdrop-blur-sm border-transparent";
-    case "Planning":
-      return "bg-muted/20 text-muted-foreground border border-border backdrop-blur-md";
+const FILTER_STATUSES = ["All", "WIP", "Complete", "Planning"];
+
+const getStatusBadgeStyle = (status: string) => {
+  const normStatus = status?.toLowerCase() || "wip";
+  switch (normStatus) {
+    case "complete":
+      return "bg-green-500 text-black font-bold border-transparent";
+    case "planning":
+      return "bg-amber-500/10 text-amber-500 border border-amber-500/20";
+    case "wip":
     default:
-      return "bg-muted text-foreground";
+      return "bg-neutral-800 text-white border border-neutral-700";
   }
 };
 
 export default function MyBuildsPage() {
-  // 1. State untuk menampung data asli dari backend (Awalnya kosong [])
+  const router = useRouter(); 
+
   const [projects, setProjects] = useState<Project[]>([]);
+  const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
 
-  // 2. Fungsi GET untuk menarik data dari API backend
-  // Gabungkan fetchProjects langsung di dalam useEffect
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchAllBuildsAndUser = async () => {
       setIsLoading(true);
       setErrorMsg("");
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`${baseUrl}/projects`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
+        const [profileRes, projectsRes] = await Promise.all([
+          fetch(`${baseUrl}/auth/profile`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${baseUrl}/projects`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
 
-        if (!res.ok) {
-          throw new Error(`Failed to fetch projects (HTTP ${res.status})`);
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setCurrentProfile(profileData);
         }
 
-        const data = await res.json();
-        setProjects(data);
+        if (!projectsRes.ok) {
+          throw new Error(
+            `Gagal memuat list proyek (HTTP ${projectsRes.status})`,
+          );
+        }
 
+        const projectsData = await projectsRes.json();
+        setProjects(Array.isArray(projectsData) ? projectsData : []);
       } catch (err: unknown) {
         console.error(err);
-        const errorMessage = (err as Error).message || "Gagal memuat data proyek.";
+        const errorMessage = (err as Error).message || "Koneksi ke database gagal.";
         setErrorMsg(errorMessage);
         toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
-    // Panggil fungsinya
-    fetchProjects();
-  }, []); 
 
-  // Filter projects berdasarkan input pencarian
-  const filteredProjects = useMemo(
-    () =>
-      projects.filter((project) => {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          project.title.toLowerCase().includes(query) ||
-          project.description?.toLowerCase().includes(query);
+    fetchAllBuildsAndUser();
+  }, []);
 
-        // Pengecekan tag (jika array tags dari backend tidak kosong)
-        const matchesTag = activeTag ? project.tags?.includes(activeTag) : true;
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch =
+        project.title.toLowerCase().includes(query) ||
+        project.description?.toLowerCase().includes(query);
 
-        return matchesSearch && matchesTag;
-      }),
-    [projects, searchQuery, activeTag],
-  );
+      const matchesStatus =
+        activeStatusFilter === "All" ||
+        project.status?.toLowerCase() === activeStatusFilter.toLowerCase();
 
-  // Fungsi untuk menghapus project berdasarkan ID
+      return matchesSearch && matchesStatus;
+    });
+  }, [projects, searchQuery, activeStatusFilter]);
+
   const handleDelete = async (id: number) => {
-    // Berikan konfirmasi ke user sebelum benar-benar menghapus
     const confirmDelete = window.confirm(
-      "Apakah Anda yakin ingin menghapus project ini?",
+      "Apakah Anda yakin ingin menghapus proyek bangun kendaraan ini?",
     );
-    if (!confirmDelete) {
-      toast.error("Delete cancelled");
-      return;
-    }
+    if (!confirmDelete) return;
 
-    // Gunakan toast.promise untuk menampilkan loading, success, dan error states
     toast.promise(
       (async () => {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -119,7 +136,6 @@ export default function MyBuildsPage() {
 
         if (!token) throw new Error("Sesi habis, silakan login kembali.");
 
-        // Menembak endpoint DELETE /projects/{id}
         const res = await fetch(`${baseUrl}/projects/${id}`, {
           method: "DELETE",
           headers: {
@@ -128,173 +144,175 @@ export default function MyBuildsPage() {
         });
 
         if (!res.ok) {
-          throw new Error(`Gagal menghapus project (HTTP ${res.status})`);
+          throw new Error(`Gagal menghapus proyek (HTTP ${res.status})`);
         }
 
-        // SINKRONISASI UI LOKAL: Hapus data dari state secara realtime tanpa perlu reload halaman
         setProjects((prev) => prev.filter((project) => project.id !== id));
       })(),
       {
-        loading: "Sedang menghapus project...",
-        success: "Project berhasil dihapus!",
-        error: (err) => {
-          const errorMessage = (err as Error).message || "Terjadi kesalahan saat menghapus data.";
-          return errorMessage;
-        },
-      }
+        loading: "Menghapus data proyek...",
+        success: "Proyek berhasil dihapus dari sistem!",
+        error: (err) => (err as Error).message || "Terjadi kesalahan sistem.",
+      },
     );
   };
+
   return (
     <AuthGuard>
       <Toaster position="top-right" richColors />
-      <div className="max-w-7xl mx-auto pb-10 flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row bg-background text-foreground transition-all duration-300 font-sans min-h-screen overflow-hidden">
         <Sidebar activePage="builds" />
 
-        <main className="flex-1">
-          {/* Header */}
-          <div className="flex flex-col gap-6 md:items-start md:flex-row md:justify-between mb-8">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2 text-foreground">
-                All Builds
-              </h2>
-              <p className="text-muted-foreground">
-                Explore projects from the community
+              <h1 className="text-3xl font-bold tracking-tight mb-1">All Builds</h1>
+              <p className="text-sm text-muted-foreground">
+                Explore real custom build vehicle mechanics from the community
               </p>
             </div>
 
             <Link
               href="/buildss/new"
-              className="bg-green-500 hover:bg-green-600 text-black font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm shadow-sm"
             >
-              <Plus size={20} />
+              <Plus size={18} />
               New Project
             </Link>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative max-w-full mb-6">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-              size={18}
-            />
+          <div className="relative w-full mb-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               type="text"
-              placeholder="Search by title or description..."
-              className="w-full bg-input border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm text-foreground focus:outline-none focus:border-primary"
+              placeholder="Search builds by title or component description..."
+              className="w-full bg-input border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
             />
           </div>
 
-          {/* Filter Tags */}
           <div className="mb-8">
-            <p className="text-muted-foreground mb-3 text-sm">
-              Filter by tags:
+            <p className="text-muted-foreground mb-2.5 text-xs font-medium uppercase tracking-wider">
+              Filter by build status:
             </p>
             <div className="flex flex-wrap gap-2">
-              {FILTER_TAGS.map((tag) => {
-                const isActive = activeTag === tag;
+              {FILTER_STATUSES.map((status) => {
+                const isActive = activeStatusFilter === status;
                 return (
                   <button
-                    key={tag}
-                    onClick={() => setActiveTag(isActive ? null : tag)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                    key={status}
+                    onClick={() => setActiveStatusFilter(status)}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                       isActive
-                        ? "bg-green-500 text-black"
-                        : "bg-popover border border-border text-foreground hover:bg-muted"
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "bg-card border-border text-muted-foreground hover:bg-muted"
                     }`}
                   >
-                    {tag}
+                    {status}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Kondisi Loading */}
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-20 gap-2">
-              <Loader2 className="animate-spin text-green-500" size={32} />
+            <div className="flex flex-col items-center justify-center py-32 gap-2">
+              <Loader2 className="animate-spin text-primary" size={36} />
               <p className="text-sm text-muted-foreground">
-                Loading builds from database...
+                Syncing global builds repository...
               </p>
             </div>
           )}
 
-          {/* Kondisi Error */}
           {errorMsg && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-sm mb-6">
-              ⚠️ {errorMsg}
+              {errorMsg}
             </div>
           )}
 
-          {/* Kondisi jika Data Kosong di Database */}
           {!isLoading && filteredProjects.length === 0 && (
-            <div className="text-center py-20 border border-dashed border-border rounded-2xl">
-              <p className="text-muted-foreground text-sm">
-                No build projects found. Create a new one!
+            <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-card text-muted-foreground text-center p-6 gap-2">
+              <FolderKanban size={36} className="text-gray-500" />
+              <p className="text-sm font-medium">No custom projects matching parameters</p>
+              <p className="text-xs text-gray-500">
+                Be the first mechanic to document a build profile!
               </p>
             </div>
           )}
 
-          {/* List Projects Grid Asli Backend */}
           {!isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:border-primary/50 transition-colors"
-                >
-                  <div className="relative h-48 w-full bg-card/80">
-                    <img
-                      src={
-                        project.imageUrl ||
-                        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800"
-                      }
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div
-                      className={`absolute top-4 right-4 px-3 py-1 text-xs rounded-full ${getStatusBadgeStyle(project.status)}`}
-                    >
-                      {project.status || "WIP"}
+              {filteredProjects.map((project) => {
+                const rawCost = project.totalSpent || "0";
+                const formattedCost = Number(rawCost).toLocaleString("id-ID");
+                const isOwner = currentProfile && project.userId === currentProfile.id;
+
+                return (
+                  <div
+                    key={project.id}
+                    onClick={() => router.push(`/buildss/${project.id}`)}
+                    className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col justify-between hover:shadow-md hover:border-green-500/40 transition-all group text-card-foreground cursor-pointer"
+                  >
+                    <div>
+                      <div className="relative h-48 w-full bg-muted overflow-hidden">
+                        <Image
+                          src={project.imageUrl || "https://images.unsplash.com/photo-1503376780353-7e6692767b70"}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                          fill
+                          unoptimized
+                        />
+                        <div className={`absolute top-3 right-3 px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-md ${getStatusBadgeStyle(project.status || "WIP")}`}>
+                          {project.status || "WIP"}
+                        </div>
+                      </div>
+
+                      <div className="p-5">
+                        <h3 className="font-bold text-base text-foreground truncate mb-1 group-hover:text-green-500 transition-colors">
+                          {project.title || "Untitled Build"}
+                        </h3>
+                        <p className="text-muted-foreground text-xs min-h-9 line-clamp-2 leading-relaxed mb-4">
+                          {project.description || "No project overview description provided."}
+                        </p>
+
+                        {isOwner ? (
+                          <div className="flex items-center gap-2 mb-2" onClick={(e) => e.stopPropagation()}>
+                            <Link
+                              href={`/buildss/${project.id}/edit`}
+                              className="text-[11px] bg-secondary hover:bg-secondary/80 border border-border text-foreground px-2.5 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1"
+                            >
+                              <Edit3 size={12} />
+                              Edit
+                            </Link>
+
+                            <button
+                              onClick={() => handleDelete(project.id)}
+                              className="text-[11px] bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-2.5 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1"
+                            >
+                              <Trash2 size={12} />
+                              Delete
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-muted-foreground italic mb-2 bg-muted/50 px-2 py-1 rounded w-max">
+                            🔒 View Only Profile
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-5 pt-0">
+                      <div className="flex justify-between items-center text-xs pt-3.5 border-t border-border/60">
+                        <span className="text-muted-foreground">Total Cost Build:</span>
+                        <span className="font-bold text-foreground text-sm">
+                          IDR {formattedCost}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h3 className="font-bold text-[17px] text-card-foreground mb-1 leading-tight">
-                      {project.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                      {project.description}
-                    </p>
-
-                    <div className="mb-4 flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/buildss/${project.id}/edit`}
-                        className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1.5 rounded-md font-medium transition-colors inline-block"
-                      >
-                        ✏️ Edit Project
-                      </Link>
-
-                      <button
-                        onClick={() => handleDelete(project.id)}
-                        className="text-xs bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1.5 rounded-md font-medium transition-all"
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-
-                    <div className="flex justify-between items-center mb-5 text-sm mt-auto pt-2 border-t border-border/50">
-                      <span className="text-muted-foreground">Total Cost:</span>
-                      <span className="font-bold text-card-foreground text-[15px]">
-                        {project.totalSpent === "0"
-                          ? "IDR 0"
-                          : project.totalSpent}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </main>

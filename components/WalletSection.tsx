@@ -78,14 +78,14 @@ export function WalletSection({ balance, setBalance, currentUserId }: WalletSect
         <div>
           <div className="flex items-center gap-3 mb-2 opacity-80">
             <Wallet size={20} />
-            <span className="text-xs font-bold tracking-wider uppercase">Simulated Balance</span>
+            <span className="text-xs font-bold tracking-wider uppercase">Wallet Balance</span>
           </div>
           <div className="text-3xl font-black font-mono">
-            IDR {Number(balance).toLocaleString("id-ID")}
+            ${Number(balance).toLocaleString("id-ID")}
           </div>
         </div>
         <p className="text-[11px] opacity-70 mt-6 leading-tight">
-          *Saldo tersimpan aman di database User ID: {currentUserId || "Loading..."}
+          *Saldo tersimpan dengan aman di database User ID: {currentUserId || "Loading..."}
         </p>
       </div>
 

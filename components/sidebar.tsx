@@ -1,9 +1,12 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Folder, Home, Settings, User, type LucideIcon } from "lucide-react";
+import { Folder, Home, Settings, User, ShoppingBag, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
-  id: "dashboard" | "builds" | "profile" | "settings";
+  id: "dashboard" | "builds" | "profile" | "settings" | "marketplace";
   label: string;
   href: string;
   icon: LucideIcon;
@@ -16,11 +19,66 @@ type SidebarProps = {
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: Home },
   { id: "builds", label: "All Builds", href: "/buildss", icon: Folder },
+  { id: "marketplace", label: "Marketplace", href: "/marketplace", icon: ShoppingBag },
   { id: "profile", label: "Profile", href: "/profile", icon: User },
   { id: "settings", label: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar({ activePage }: SidebarProps) {
+  // State untuk menampung data riil dari API backend
+  const [userProfile, setUserProfile] = useState<{ username: string; email: string } | null>(null);
+
+  useEffect(() => {
+    const fetchProfileFromAPI = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const token = localStorage.getItem("token");
+
+        // Jika token tidak ada, tidak perlu menembak API
+        if (!token) return;
+
+        const res = await fetch(`${baseUrl}/auth/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          
+          setUserProfile({
+            username: data.username || "User Tracker",
+            email: data.email || "user@email.com",
+          });
+          
+          // Opsional: Perbarui juga data di localStorage agar sinkron
+          localStorage.setItem("user", JSON.stringify(data));
+        } else {
+          // Jika token kedaluwarsa atau API gagal, fallback ke localStorage lama jika ada
+          const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
+          if (savedUser) {
+            setUserProfile(JSON.parse(savedUser));
+          }
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data profil dari API:", error);
+        // Fallback jika offline / server bermasalah
+        const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
+        if (savedUser) {
+          setUserProfile(JSON.parse(savedUser));
+        }
+      }
+    };
+
+    fetchProfileFromAPI();
+  }, []);
+
+  const getInitial = (username: string) => {
+    return username ? username.charAt(0).toUpperCase() : "U";
+  };
+
   return (
     <aside className="w-full md:w-64 bg-background text-foreground transition-all duration-300 border-b border-border md:border-b-0 md:border-r flex flex-col justify-between">
       <div>
@@ -41,8 +99,8 @@ export function Sidebar({ activePage }: SidebarProps) {
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-colors",
                   active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-gray-400 hover:text-foreground"
+                    ? "bg-primary text-primary-foreground font-bold"
+                    : "text-gray-400 hover:text-foreground hover:bg-muted/50"
                 )}
               >
                 <Icon size={20} />
@@ -53,12 +111,19 @@ export function Sidebar({ activePage }: SidebarProps) {
         </nav>
       </div>
 
+      {/* Bagian bawah sidebar yang sekarang ditarik langsung dari API */}
       <div className="p-6 border-t border-border flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-orange-400 to-red-500" />
-          <div>
-            <p className="text-sm font-semibold">John Doe</p>
-            <p className="text-xs text-gray-500">john@example.com</p>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-black font-black text-sm shadow-sm">
+            {getInitial(userProfile?.username || "Loading")}
+          </div>
+          <div className="overflow-hidden truncate">
+            <p className="text-sm font-semibold text-foreground truncate">
+              {userProfile?.username || "Loading..."}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              {userProfile?.email || "fetching info..."}
+            </p>
           </div>
         </div>
       </div>
