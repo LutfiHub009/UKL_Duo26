@@ -184,7 +184,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading} // Cegah spam klik saat proses
-              className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground font-semibold rounded-lg py-2.5 text-sm transition-colors"
+              className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-white font-semibold rounded-lg py-2.5 text-sm transition-colors"
             >
               {loading ? "Processing..." : "Create Account"}
             </button>
