@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 export default function Home() { 
   return ( 
@@ -7,8 +8,12 @@ export default function Home() {
       <h1 className="text-6xl font-semibold">Welcome to My Next.js App</h1>
       <p className="text-xl text-gray-600 dark:text-gray-400">This is a simple Next.js application.</p>
       <div className="space-x-3">
-        <Button> button 1</Button>
-        <Button> button 2</Button>
+        <Link href="/login">
+          <Button>Login</Button>
+        </Link>
+        <Link href="/register">
+          <Button>Register</Button>
+        </Link>
       </div>
     </div>
   </div>
