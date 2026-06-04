@@ -6,17 +6,14 @@ import { toast, Toaster } from 'sonner';
 export default function LoginPage() {
   const router = useRouter();
 
-  // 1. State untuk input form
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  // 2. State untuk status loading dan error
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fungsi membaca input otomatis
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -24,7 +21,6 @@ export default function LoginPage() {
     });
   };
 
-  // 3. Fungsi utama Login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -33,7 +29,6 @@ export default function LoginPage() {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-      // PENTING: Sesuaikan '/auth/login' dengan path asli di Swagger kamu
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: {
@@ -47,27 +42,37 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      // Jika backend melempar error (Password salah / email tidak terdaftar)
       if (!response.ok) {
         throw new Error(data.message || "Email atau password salah.");
       }
 
-      // =================================================================
-      // LANGKAH KRUSIAL: Menyimpan Token ke LocalStorage
-      // Sesuaikan 'data.token' dengan struktur response di Swagger kamu
-      // =================================================================
+      // =====================================================
+      // FIX UTAMA: Bersihkan semua data akun lama dulu
+      // sebelum menyimpan token akun baru agar tidak
+      // ada kebocoran data antara sesi / akun berbeda
+      // =====================================================
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("profile");
+
+      // Simpan token akun baru
+      let tokenValue = "";
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        tokenValue = data.token;
       } else if (data.accessToken) {
-        localStorage.setItem("token", data.accessToken);
-      } else {
-        // Jika skema backend kamu berbentuk { data: { token: '...' } }
-        localStorage.setItem("token", data.data?.token);
+        tokenValue = data.accessToken;
+      } else if (data.data?.token) {
+        tokenValue = data.data.token;
       }
+
+      if (!tokenValue) {
+        throw new Error("Token tidak ditemukan dalam response. Hubungi developer.");
+      }
+
+      localStorage.setItem("token", tokenValue);
 
       toast.success("Login berhasil!");
       
-      // Arahkan user ke halaman utama/dashboard setelah sukses
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000); 
@@ -120,7 +125,7 @@ export default function LoginPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="john@example.com"
-              className="bg-slate-50 border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-900 focus:bg-white focus:outline-none transition dark:bg-slate-900/80 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-500"
+              className="rounded-xl px-4 py-3 text-sm bg-slate-50 border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-900 focus:bg-white focus:outline-none transition dark:bg-slate-900/80 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -132,15 +137,30 @@ export default function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               placeholder="••••••••"
-              className="bg-slate-50 border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-900 focus:bg-white focus:outline-none transition dark:bg-slate-900/80 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-500"
+              className="rounded-xl px-4 py-3 text-sm bg-slate-50 border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-900 focus:bg-white focus:outline-none transition dark:bg-slate-900/80 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
+          {error && (
+            <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl px-3 py-2">
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 dark:bg-emerald-400 dark:text-slate-950 dark:hover:bg-emerald-300"
+            disabled={loading}
+            className="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-emerald-400 dark:text-slate-950 dark:hover:bg-emerald-300 flex items-center justify-center gap-2"
           >
-            Sign In
+            {loading ? (
+              <>
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Signing in...
+              </>
+            ) : "Sign In"}
           </button>
         </form>
 

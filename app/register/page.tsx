@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 export default function RegisterPage() {
   const router = useRouter();
 
-  // 1. State untuk menyimpan data dari input form
+  // 1. Perbarui State untuk mencakup username dan fullname sesuai spesifikasi API
   const [formData, setFormData] = useState({
     email: "",
+    username: "",
+    fullname: "",
     password: "",
     confirmPassword: "",
   });
@@ -45,6 +47,7 @@ export default function RegisterPage() {
         throw new Error("API Base URL tidak ditemukan. Periksa file .env.local Anda.");
       }
 
+      // Mengirimkan payload lengkap sesuai spesifikasi image_84d162.png
       const response = await fetch(`${baseUrl}/auth/register`, {
         method: "POST",
         headers: {
@@ -53,6 +56,8 @@ export default function RegisterPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          username: formData.username,
+          fullname: formData.fullname,
         }),
       });
 
@@ -105,10 +110,10 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-sm bg-card/95 border border-border backdrop-blur-xl rounded-[28px] p-6 sm:p-8 shadow-2xl shadow-black/40">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            <h1 className="text-3xl font-bold mb-2 tracking-tight">
               Create account
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base">
+            <p className="text-muted-foreground text-sm">
               Fill in your details to get started
             </p>
           </div>
@@ -122,7 +127,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Tambahan: Alert Box untuk Menampilkan Error */}
+        {/* Alert Box untuk Menampilkan Error */}
         {error && (
           <div className="mb-4 bg-red-500/10 border border-red-500/30 text-red-500 text-xs p-3 rounded-xl font-medium">
             ⚠️ {error}
@@ -142,6 +147,38 @@ export default function RegisterPage() {
               className="bg-input border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
               name="email"
               value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* BARU: Username */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-muted-foreground">
+              Username
+            </label>
+            <input
+              type="text"
+              placeholder="majonez"
+              className="bg-input border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* BARU: Full Name */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-muted-foreground">
+              Full Name
+            </label>
+            <input
+              type="text"
+              placeholder="Majonez"
+              className="bg-input border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+              name="fullname"
+              value={formData.fullname}
               onChange={handleChange}
               required
             />
