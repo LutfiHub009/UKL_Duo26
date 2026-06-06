@@ -78,7 +78,7 @@ export function WalletSection({ balance, setBalance, currentUserId }: WalletSect
         <div>
           <div className="flex items-center gap-3 mb-2 opacity-80">
             <Wallet size={20} />
-            <span className="text-xs font-bold tracking-wider uppercase">Wallet Balance</span>
+            <span className="text-xs font-bold tracking-wider uppercase">saldo akun</span>
           </div>
           <div className="text-3xl font-black font-mono">
             ${Number(balance).toLocaleString("id-ID")}
@@ -91,7 +91,7 @@ export function WalletSection({ balance, setBalance, currentUserId }: WalletSect
 
       {/* Form Deposit */}
       <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-        <h4 className="text-sm font-bold mb-3 text-card-foreground">Quick Deposit</h4>
+        <h4 className="text-sm font-bold mb-3 text-card-foreground">topup cepat</h4>
         <form onSubmit={handleTopUp} className="space-y-3">
           <input
             type="number"

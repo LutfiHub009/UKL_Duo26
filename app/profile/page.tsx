@@ -77,7 +77,7 @@ export default function ProfileDashboard() {
             <div className="flex flex-col items-center justify-center flex-1 py-40 gap-2">
               <Loader2 className="animate-spin text-green-500" size={36} />
               <p className="text-sm text-muted-foreground">
-                Syncing dashboard data...
+                Syncing Profile data...
               </p>
             </div>
           ) : errorMsg ? (
@@ -87,7 +87,7 @@ export default function ProfileDashboard() {
               <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-1">Profile</h1>
                 <p className="text-gray-400 text-sm">
-                  Manage your account and wallet
+                  Kelola akun dan dompet digital Anda di sini.
                 </p>
               </div>
 
@@ -95,7 +95,7 @@ export default function ProfileDashboard() {
                 {/* Kolom Kiri: Detail Akun */}
                 <div className="w-full xl:w-80 bg-card border border-border rounded-2xl p-6 flex flex-col text-card-foreground">
                   <h2 className="font-semibold text-lg mb-6 text-card-foreground">
-                    Account Details
+                    Detail Akun
                   </h2>
 
                   <div className="flex flex-col items-center mb-8">
@@ -130,25 +130,13 @@ export default function ProfileDashboard() {
                     </div>
                   </div>
 
-                  <div className="mb-8">
-                    <h4 className="text-muted-foreground text-sm mb-3">
-                      Interests
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="bg-muted px-3 py-1 rounded-full text-xs font-medium border border-border text-muted-foreground">
-                        #JDM
-                      </span>
-                      <span className="bg-muted px-3 py-1 rounded-full text-xs font-medium border border-border text-muted-foreground">
-                        #Drift
-                      </span>
-                    </div>
-                  </div>
+                  
                 </div>
 
                 {/* Kolom Kanan: Wallet */}
                 <div className="flex-1 space-y-8">
                   <div className="space-y-3">
-                    <h2 className="font-semibold text-xl">My Wallet</h2>
+                    <h2 className="font-semibold text-xl">dompet saya</h2>
                     <WalletSection
                       balance={balance}
                       setBalance={setBalance}
