@@ -49,7 +49,7 @@ export default function SettingsPage() {
               <div>
                 <h1 className="text-3xl font-bold mb-1 tracking-tight">Settings</h1>
                 <p className="text-gray-400 text-sm">
-                  Manage your account preferences and application configurations
+                  Atur konfigurasi akun sesuai preferensi dan kebutuhan Anda.
                 </p>
               </div>
             </div>
@@ -62,13 +62,13 @@ export default function SettingsPage() {
                   <h2 className="font-semibold text-lg text-foreground">Account Actions</h2>
                 </div>
                 <p className="text-xs text-muted-foreground mb-6">
-                  Sign out from this device. To access your dashboard metrics and project configurations again, you will need to re-authenticate.
+                  Keluar akun dari perangkat ini. Pastikan semua pekerjaan Anda sudah disimpan sebelum melakukan logout. Jika anda ingin mengatur ulang project Anda, Anda harus autentikasi kembali.
                 </p>
                 
                 <div className="border-t border-border/60 pt-5 flex items-center justify-between">
                   <div className="hidden sm:block">
-                    <p className="text-xs font-medium text-foreground">Are you ready to leave?</p>
-                    <p className="text-[11px] text-muted-foreground">Your active draft builds are securely synchronized.</p>
+                    <p className="text-xs font-medium text-foreground">Anda ingin keluar akun?</p>
+                    <p className="text-[11px] text-muted-foreground">Project build Anda aman dan tersinkronasi secara otomatis.</p>
                   </div>
                   
                   {/* TOMBOL LOGOUT */}
@@ -77,7 +77,7 @@ export default function SettingsPage() {
                     className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-sm w-full sm:w-auto"
                   >
                     <LogOut size={16} />
-                    Logout Account
+                    Keluar dari Akun
                   </button>
                 </div>
               </div>

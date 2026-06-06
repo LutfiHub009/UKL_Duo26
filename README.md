@@ -41,6 +41,10 @@ app/
 ├── profile/      # User profile management
 └── settings/     # Application/User settings
 ```
+## Update Lokalisasi!
+
+Mengganti bahasa menjadi Bahasa Indonesia untuk lokalisasi.
+Patched akses untuk user customer.
 
 ## Getting Started
 

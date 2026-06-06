@@ -18,7 +18,7 @@ type SidebarProps = {
 
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: Home },
-  { id: "builds", label: "All Builds", href: "/buildss", icon: Folder },
+  { id: "builds", label: "My Builds", href: "/buildss", icon: Folder },
   { id: "marketplace", label: "Marketplace", href: "/marketplace", icon: ShoppingBag },
   { id: "profile", label: "Profile", href: "/profile", icon: User },
   { id: "settings", label: "Settings", href: "/settings", icon: Settings },

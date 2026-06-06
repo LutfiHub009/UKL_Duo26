@@ -191,13 +191,15 @@ export default function MarketplacePage() {
               </p>
             </div>
             
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="bg-green-500 hover:bg-green-600 text-black text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm self-start sm:self-center"
-            >
-              <Plus size={16} />{" "}
-              {showAddForm ? "Tutup Form" : "Jual Suku Cadang Baru"}
-            </button>
+            {userRole === "moderator" && (
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="bg-green-500 hover:bg-green-600 text-black text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm self-start sm:self-center"
+              >
+                <Plus size={16} />{" "}
+                {showAddForm ? "Tutup Form" : "Jual Suku Cadang Baru"}
+              </button>
+            )}
           </div>
 
           {/* Form Pengisian Penjualan Suku Cadang Baru */}

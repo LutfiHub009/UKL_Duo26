@@ -219,7 +219,7 @@ export default function BuildssPage() {
                 onClick={() => router.push("/buildss/new")}
                 className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-black text-sm font-bold px-4 py-2.5 rounded-xl transition-colors shadow-sm"
               >
-                <Plus size={16} /> New Build
+                <Plus size={16} /> Buat Project Baru
               </button>
             )}
           </div>
@@ -257,7 +257,7 @@ export default function BuildssPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
-                isMods ? "Search all builds..." : "Search your builds..."
+                isMods ? "Cari semua build..." : "Cari semua buildmu..."
               }
               className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-green-500/50 transition-colors"
             />
