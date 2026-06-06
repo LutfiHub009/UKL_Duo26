@@ -65,77 +65,59 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      // Reset semua state agar data akun lama tidak tertinggal
-      setProfile(null);
-      setProjects([]);
-      setMetrics(null);
-      setActivities([]);
-      setIsLoading(true);
+    const checkRoleAndRedirect = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
 
+      // 1. Coba baca dari localStorage dulu agar redirect instan
+      const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
+      if (savedUser) {
+        try {
+          const parsedUser = JSON.parse(savedUser);
+          const savedRole = (parsedUser.role || parsedUser.roles?.[0] || "").toLowerCase();
+          if (savedRole === "mods") {
+            router.replace("/moderator");
+            return;
+          } else if (savedRole === "customer") {
+            router.replace("/customer");
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // 2. Jika tidak ada di localStorage, ambil profil dari API
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        // 1. Selalu fetch profil dari API untuk dapat userId yang akurat
         const profileRes = await fetch(`${baseUrl}/auth/profile`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!profileRes.ok) {
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          localStorage.setItem("user", JSON.stringify(profileData));
+          const actualRole = (profileData.role || profileData.roles?.[0] || "").toLowerCase();
+          if (actualRole === "mods") {
+            router.replace("/moderator");
+          } else {
+            router.replace("/customer");
+          }
+        } else {
           router.push("/login");
-          return;
-        }
-
-        const profileData: UserProfile = await profileRes.json();
-        setProfile(profileData);
-
-        // 2. Fetch semua data secara paralel menggunakan userId dari API
-        const [metricsRes, activityRes, projectsRes] = await Promise.all([
-          fetch(`${baseUrl}/projects/dashboard/metrics`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${baseUrl}/projects/dashboard/activity-feed`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${baseUrl}/projects?userId=${profileData.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        if (metricsRes.ok) {
-          setMetrics(await metricsRes.json());
-        }
-
-        if (activityRes.ok) {
-          const activityData = await activityRes.json();
-          // Backend mungkin mengembalikan array langsung atau objek dengan field tertentu
-          const actList = Array.isArray(activityData)
-            ? activityData
-            : activityData?.data ?? activityData?.activities ?? [];
-          setActivities(actList);
-        }
-
-        if (projectsRes.ok) {
-          const projectsData = await projectsRes.json();
-          setProjects(Array.isArray(projectsData) ? projectsData : []);
         }
       } catch (err) {
-        console.error("Dashboard Fetch Error:", err);
-      } finally {
-        setIsLoading(false);
+        console.error("Dashboard check role error:", err);
+        router.push("/login");
       }
     };
 
-    fetchDashboardData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    checkRoleAndRedirect();
+  }, [router]);
 
   const displayTotalProjects =
     metrics !== null ? metrics.totalProjects : projects.length;

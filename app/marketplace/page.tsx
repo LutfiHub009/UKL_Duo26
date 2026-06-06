@@ -19,6 +19,11 @@ type MarketListing = {
   price: string; // Sesuai respons Swagger Anda yang bertipe string
 };
 
+type UserProfile = {
+  role?: string;
+  roles?: string[];
+};
+
 export default function MarketplacePage() {
   const [listings, setListings] = useState<MarketListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +34,7 @@ export default function MarketplacePage() {
   const [price, setPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState<number | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   // 1. Ambil data katalog suku cadang dari server (GET)
   const fetchMarketListings = async () => {
@@ -51,15 +57,52 @@ export default function MarketplacePage() {
     }
   };
 
+  const fetchUserRole = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
+      if (savedUser) {
+        const parsedUser: UserProfile = JSON.parse(savedUser);
+        const savedRole = parsedUser.role || parsedUser.roles?.[0];
+        if (savedRole) {
+          setUserRole(savedRole.toLowerCase());
+          return;
+        }
+      }
+
+      const res = await fetch(`${baseUrl}/auth/profile`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) return;
+      const profileData: UserProfile = await res.json();
+      const role = profileData.role || profileData.roles?.[0];
+      if (role) setUserRole(role.toLowerCase());
+    } catch (error) {
+      console.error("Gagal mengambil role pengguna:", error);
+    }
+  };
+
   useEffect(() => {
     const loadMarketData = async () => {
       await fetchMarketListings();
     };
 
+    const loadProfile = async () => {
+      await fetchUserRole();
+    };
+
     loadMarketData();
+    loadProfile();
   }, []);
 
-  // 2. Daftarkan Suku Cadang Baru ke Pasar (POST)
   const handleCreateListing = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -147,6 +190,7 @@ export default function MarketplacePage() {
                 komunitas BuildTracker
               </p>
             </div>
+            
             <button
               onClick={() => setShowAddForm(!showAddForm)}
               className="bg-green-500 hover:bg-green-600 text-black text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm self-start sm:self-center"
@@ -259,8 +303,7 @@ export default function MarketplacePage() {
           ) : (
             <div className="text-center py-20 border border-dashed border-border rounded-2xl bg-card/30">
               <p className="text-sm text-muted-foreground italic">
-                Belum ada suku cadang modifikasi yang dijual di marketplace
-                malam ini.
+                Belum ada suku cadang modifikasi yang dijual di marketplace.
               </p>
             </div>
           )}

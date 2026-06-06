@@ -26,7 +26,24 @@ const navItems: NavItem[] = [
 
 export function Sidebar({ activePage }: SidebarProps) {
   // State untuk menampung data riil dari API backend
-  const [userProfile, setUserProfile] = useState<{ username: string; email: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ username: string; email: string; role?: string } | null>(() => {
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          return {
+            username: parsed.username || "",
+            email: parsed.email || "",
+            role: parsed.role || parsed.roles?.[0] || "",
+          };
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
     const fetchProfileFromAPI = async () => {
@@ -47,10 +64,12 @@ export function Sidebar({ activePage }: SidebarProps) {
 
         if (res.ok) {
           const data = await res.json();
+          const roleVal = data.role || data.roles?.[0] || "";
           
           setUserProfile({
             username: data.username || "User Tracker",
             email: data.email || "user@email.com",
+            role: roleVal,
           });
           
           // Opsional: Perbarui juga data di localStorage agar sinkron
@@ -59,7 +78,12 @@ export function Sidebar({ activePage }: SidebarProps) {
           // Jika token kedaluwarsa atau API gagal, fallback ke localStorage lama jika ada
           const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
           if (savedUser) {
-            setUserProfile(JSON.parse(savedUser));
+            const parsed = JSON.parse(savedUser);
+            setUserProfile({
+              username: parsed.username || "User Tracker",
+              email: parsed.email || "user@email.com",
+              role: parsed.role || parsed.roles?.[0] || "",
+            });
           }
         }
       } catch (error) {
@@ -67,7 +91,12 @@ export function Sidebar({ activePage }: SidebarProps) {
         // Fallback jika offline / server bermasalah
         const savedUser = localStorage.getItem("user") || localStorage.getItem("profile");
         if (savedUser) {
-          setUserProfile(JSON.parse(savedUser));
+          const parsed = JSON.parse(savedUser);
+          setUserProfile({
+            username: parsed.username || "User Tracker",
+            email: parsed.email || "user@email.com",
+            role: parsed.role || parsed.roles?.[0] || "",
+          });
         }
       }
     };
@@ -77,6 +106,13 @@ export function Sidebar({ activePage }: SidebarProps) {
 
   const getInitial = (username: string) => {
     return username ? username.charAt(0).toUpperCase() : "U";
+  };
+
+  const getDashboardHref = () => {
+    const role = (userProfile?.role || "").toLowerCase();
+    if (role === "mods") return "/moderator";
+    if (role === "customer") return "/customer";
+    return "/dashboard";
   };
 
   return (
@@ -91,11 +127,12 @@ export function Sidebar({ activePage }: SidebarProps) {
           {navItems.map((item) => {
             const active = activePage === item.id;
             const Icon = item.icon;
+            const href = item.id === "dashboard" ? getDashboardHref() : item.href;
 
             return (
               <Link
                 key={item.id}
-                href={item.href}
+                href={href}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-colors",
                   active
@@ -117,13 +154,24 @@ export function Sidebar({ activePage }: SidebarProps) {
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-black font-black text-sm shadow-sm">
             {getInitial(userProfile?.username || "Loading")}
           </div>
-          <div className="overflow-hidden truncate">
+          <div className="overflow-hidden truncate flex-1">
             <p className="text-sm font-semibold text-foreground truncate">
               {userProfile?.username || "Loading..."}
             </p>
-            <p className="text-xs text-gray-500 truncate">
-              {userProfile?.email || "fetching info..."}
-            </p>
+            <div className="flex flex-col gap-1 items-start">
+              <p className="text-xs text-gray-500 truncate w-full">
+                {userProfile?.email || "fetching info..."}
+              </p>
+              {userProfile?.role && (
+                <span className={`inline-block rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                  userProfile.role.toLowerCase() === "mods"
+                    ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                    : "bg-green-500/10 text-green-500 border border-green-500/20"
+                }`}>
+                  {userProfile.role.toLowerCase() === "mods" ? "Moderator" : "Customer"}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

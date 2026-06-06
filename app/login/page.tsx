@@ -71,10 +71,34 @@ export default function LoginPage() {
 
       localStorage.setItem("token", tokenValue);
 
+      // --- VERIFIKASI ROLE SEBELUM MASUK ---
+      const profileRes = await fetch(`${baseUrl}/auth/profile`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenValue}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!profileRes.ok) {
+        localStorage.removeItem("token");
+        throw new Error("Gagal mengambil profil akun.");
+      }
+
+      const profileData = await profileRes.json();
+      const actualRole = (profileData.role || profileData.roles?.[0] || "customer").toLowerCase();
+
+      // Simpan user profile ke localStorage
+      localStorage.setItem("user", JSON.stringify(profileData));
+
       toast.success("Login berhasil!");
       
       setTimeout(() => {
-        router.push("/dashboard");
+        if (actualRole === "mods") {
+          router.push("/moderator");
+        } else {
+          router.push("/customer");
+        }
       }, 1000); 
 
     } catch (err: unknown) {
@@ -140,6 +164,8 @@ export default function LoginPage() {
               className="rounded-xl px-4 py-3 text-sm bg-slate-50 border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-900 focus:bg-white focus:outline-none transition dark:bg-slate-900/80 dark:border-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
+
+
 
           {error && (
             <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl px-3 py-2">

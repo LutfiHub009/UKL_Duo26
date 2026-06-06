@@ -12,6 +12,7 @@ export default function RegisterPage() {
     fullname: "",
     password: "",
     confirmPassword: "",
+    role: "customer",
   });
 
   // 2. State untuk status loading dan error
@@ -58,6 +59,7 @@ export default function RegisterPage() {
           password: formData.password,
           username: formData.username,
           fullname: formData.fullname,
+          role: formData.role,
         }),
       });
 
@@ -182,6 +184,45 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
             />
+          </div>
+
+          {/* Role Selection */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-muted-foreground">
+              Register As
+            </label>
+            <div className="grid grid-cols-2 gap-3 mt-1">
+              <label className={`flex items-center justify-center gap-2 rounded-xl p-3 border cursor-pointer transition-all ${
+                formData.role === "customer"
+                  ? "border-[#46d35c] bg-[#46d35c]/10 text-[#46d35c]"
+                  : "border-border bg-input/40 text-muted-foreground hover:bg-input/60"
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="customer"
+                  checked={formData.role === "customer"}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <span className="text-xs font-bold uppercase tracking-wider">Customer</span>
+              </label>
+              <label className={`flex items-center justify-center gap-2 rounded-xl p-3 border cursor-pointer transition-all ${
+                formData.role === "mods"
+                  ? "border-[#46d35c] bg-[#46d35c]/10 text-[#46d35c]"
+                  : "border-border bg-input/40 text-muted-foreground hover:bg-input/60"
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="mods"
+                  checked={formData.role === "mods"}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <span className="text-xs font-bold uppercase tracking-wider">Moderator</span>
+              </label>
+            </div>
           </div>
 
           {/* Password */}
