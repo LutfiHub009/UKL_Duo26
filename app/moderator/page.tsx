@@ -140,7 +140,7 @@ export default function ModeratorDashboardPage() {
                   {/* Metrics Overview - Full Width */}
                   <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
                     <h2 className="text-base font-bold mb-6 tracking-tight">
-                      System Statistics
+                      Statistik Sistem
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20 p-6 rounded-xl">
@@ -186,7 +186,7 @@ export default function ModeratorDashboardPage() {
                     <div className="flex justify-between items-center mb-6">
                       <h2 className="text-base font-bold tracking-tight flex items-center gap-1.5">
                         <Tag size={18} className="text-amber-500" />
-                        list Marketplace 
+                        List Marketplace 
                       </h2>
                       <span className="text-xs bg-muted border border-border px-3 py-1 rounded-full text-muted-foreground font-semibold">
                         {listings.length} items

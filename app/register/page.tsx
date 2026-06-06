@@ -113,10 +113,10 @@ export default function RegisterPage() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="text-center sm:text-left">
             <h1 className="text-3xl font-bold mb-2 tracking-tight">
-              Create account
+              Buat akun
             </h1>
             <p className="text-muted-foreground text-sm">
-              Fill in your details to get started
+              Isi detail Anda untuk memulai
             </p>
           </div>
         </div>
@@ -125,8 +125,8 @@ export default function RegisterPage() {
         <div className="mb-4">
           <h2 className="text-lg font-bold text-card-foreground">Register</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Create a new account to join the community
-          </p>
+            Buat akun baru untuk mengakses fitur lengkap kami. Informasi Anda aman dan tidak akan dibagikan kepada pihak lain.
+            </p>
         </div>
 
         {/* Alert Box untuk Menampilkan Error */}
@@ -173,7 +173,7 @@ export default function RegisterPage() {
           {/* BARU: Full Name */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-muted-foreground">
-              Full Name
+              Nama Lengkap
             </label>
             <input
               type="text"
@@ -189,7 +189,7 @@ export default function RegisterPage() {
           {/* Role Selection */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-muted-foreground">
-              Register As
+              Register Sebagai
             </label>
             <div className="grid grid-cols-2 gap-3 mt-1">
               <label className={`flex items-center justify-center gap-2 rounded-xl p-3 border cursor-pointer transition-all ${
@@ -271,7 +271,7 @@ export default function RegisterPage() {
 
         {/* Footer Link */}
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+          Sudah punya akun?{" "}
           <a
             href="/login"
             className="text-[#46d35c] font-semibold hover:underline"

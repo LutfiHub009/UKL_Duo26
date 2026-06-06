@@ -35,6 +35,7 @@ export default function MarketplacePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const isModerator = userRole === "mods" || userRole === "moderator";
 
   // 1. Ambil data katalog suku cadang dari server (GET)
   const fetchMarketListings = async () => {
@@ -191,7 +192,7 @@ export default function MarketplacePage() {
               </p>
             </div>
             
-            {userRole === "moderator" && (
+            {isModerator && (
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="bg-green-500 hover:bg-green-600 text-black text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm self-start sm:self-center"

@@ -136,7 +136,7 @@ export default function LoginPage() {
           <div className="text-center sm:text-left">
             <p className="text-sm uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-300 opacity-90 mb-3">Welcome back</p>
             <h1 className="text-3xl font-semibold text-slate-950 dark:text-white">Login</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Sign in to your account to continue</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Masuk ke dalam akun Anda untuk melanjutkan.</p>
           </div>
         </div>
 
@@ -191,7 +191,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-          Don&apos;t have an account?{' '}
+          Belum punya akun?{' '}
           <a href="/register" className="text-emerald-600 font-semibold hover:underline dark:text-emerald-300">
             Register
           </a>
