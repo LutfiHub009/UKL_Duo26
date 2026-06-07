@@ -6,6 +6,7 @@ import {
   Loader2, Calendar, Wrench, Trash2, Edit2, ArrowLeft,
   DollarSign, Plus, X, ShieldAlert, ShieldCheck, Eye,
 } from "lucide-react";
+import Link from "next/link";
 import { toast, Toaster } from "sonner";
 import { Sidebar } from "@/components/sidebar";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -33,6 +34,7 @@ type ProjectDetail = {
   userId: number;
   user?: { id: number; username?: string; fullname?: string };
   modLogs?: ModificationLog[];
+  tags?: string[];
 };
 
 type UserProfile = {
@@ -395,6 +397,25 @@ export default function ProjectDetailPage() {
                     <p className="text-gray-300 text-sm mt-1 max-w-2xl">
                       {project.description}
                     </p>
+                    {/* Tags */}
+                    {project.tags && project.tags.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {project.tags.map((t) => (
+                          <span key={t} className="bg-muted/80 text-sm text-foreground px-3 py-1 rounded-full border border-border">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Edit tags quick link for mods and owner */}
+                    {(isMods || project.userId === currentUser?.id) && (
+                      <div className="mt-3">
+                        <Link href={`/buildss/${project.id}/edit`} className="text-xs bg-green-500 text-black font-semibold px-3 py-1 rounded-xl hover:bg-green-600">
+                          Edit Tags
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

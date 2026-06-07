@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Save, ArrowLeft, Loader2 } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Tag as TagIcon, Plus, X } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { Sidebar } from "@/components/sidebar";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -30,6 +30,9 @@ export default function EditProjectPage() {
     description: "",
     imageUrl: "",
   });
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [status, setStatus] = useState<"Planning" | "WIP" | "Complete">("Planning");
   
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +70,8 @@ export default function EditProjectPage() {
           description: currentProject.description || "",
           imageUrl: currentProject.imageUrl || "",
         });
+        setTags(currentProject.tags || []);
+        setStatus((currentProject.status as "Planning" | "WIP" | "Complete") || "Planning");
 
       } catch (err: unknown) {
         console.error(err);
@@ -85,6 +90,21 @@ export default function EditProjectPage() {
 
   const handleInputChange = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const addTag = () => {
+    const t = newTag.trim();
+    if (!t) return;
+    if (tags.includes(t)) {
+      toast.error("Tag sudah ada");
+      return;
+    }
+    setTags((s) => [...s, t]);
+    setNewTag("");
+  };
+
+  const removeTag = (t: string) => {
+    setTags((s) => s.filter((x) => x !== t));
   };
 
   // 2. Fungsi PUT untuk mengirim pembaruan data ke backend
@@ -115,6 +135,8 @@ export default function EditProjectPage() {
           title: form.title,
           description: form.description,
           imageUrl: form.imageUrl,
+            tags,
+            status,
         }),
       });
 
@@ -199,6 +221,48 @@ export default function EditProjectPage() {
                     className="w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary"
                     placeholder="https://example.com/image.jpg"
                   />
+                </label>
+
+                  <label className="space-y-2 text-sm text-muted-foreground">
+                    Status
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as "Planning" | "WIP" | "Complete")}
+                      className="w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                    >
+                      <option value="Planning">Planning</option>
+                      <option value="WIP">WIP</option>
+                      <option value="Complete">Complete</option>
+                    </select>
+                  </label>
+
+                <label className="space-y-2 text-sm text-muted-foreground">
+                  Tags
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((t) => (
+                      <span key={t} className="inline-flex items-center gap-2 bg-muted border border-border rounded-full px-3 py-1 text-xs">
+                        <TagIcon size={14} />
+                        <span className="max-w-xs truncate">{t}</span>
+                        <button type="button" onClick={() => removeTag(t)} className="p-1 rounded-full hover:bg-red-500/10">
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+                      placeholder="Tambah tag custom, mis. Stage 3"
+                      className="flex-1 rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                    />
+                    <button type="button" onClick={addTag} className="inline-flex items-center gap-2 rounded-2xl bg-green-500 px-4 py-2 text-sm font-semibold text-black hover:bg-green-600">
+                      <Plus size={14} />
+                      Tambah
+                    </button>
+                  </div>
                 </label>
 
                 {errorMsg && (

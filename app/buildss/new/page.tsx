@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Tag as TagIcon, X } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { Sidebar } from "@/components/sidebar";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -18,6 +18,9 @@ export default function NewProjectPage() {
   const router = useRouter();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [status, setStatus] = useState<"Planning" | "WIP" | "Complete">("Planning");
 
   const handleInputChange = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -47,6 +50,8 @@ export default function NewProjectPage() {
           title: form.title,
           description: form.description,
           imageUrl: form.imageUrl,
+          tags,
+          status,
         }),
       });
 
@@ -118,6 +123,48 @@ export default function NewProjectPage() {
                   className="w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary"
                   placeholder="https://example.com/image.jpg"
                 />
+              </label>
+
+              <label className="space-y-2 text-sm text-muted-foreground">
+                Status
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as "Planning" | "WIP" | "Complete")}
+                  className="w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                >
+                  <option value="Planning">Planning</option>
+                  <option value="WIP">WIP</option>
+                  <option value="Complete">Complete</option>
+                </select>
+              </label>
+
+              <label className="space-y-2 text-sm text-muted-foreground">
+                Tags
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((t) => (
+                    <span key={t} className="inline-flex items-center gap-2 bg-muted border border-border rounded-full px-3 py-1 text-xs">
+                      <TagIcon size={14} />
+                      <span className="max-w-xs truncate">{t}</span>
+                      <button type="button" onClick={() => setTags((s) => s.filter(x => x !== t))} className="p-1 rounded-full hover:bg-red-500/10">
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-2 flex gap-2">
+                  <input
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const t = newTag.trim(); if (t && !tags.includes(t)) { setTags(s => [...s, t]); setNewTag(''); } }} }
+                    placeholder="Tambah tag custom, mis. Stage 3"
+                    className="flex-1 rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                  />
+                  <button type="button" onClick={() => { const t = newTag.trim(); if (!t) return; if (tags.includes(t)) { toast.error('Tag sudah ada'); return; } setTags(s => [...s, t]); setNewTag(''); }} className="inline-flex items-center gap-2 rounded-2xl bg-green-500 px-4 py-2 text-sm font-semibold text-black hover:bg-green-600">
+                    <Plus size={14} />
+                    Tambah
+                  </button>
+                </div>
               </label>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center pt-2">

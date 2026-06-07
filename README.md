@@ -46,6 +46,10 @@ app/
 Mengganti bahasa menjadi Bahasa Indonesia untuk lokalisasi.
 Patched akses untuk user customer.
 
+## Update Filtering!
+
+Memberi customer akses untuk menambah dan memulai project dengan filter.
+
 ## Getting Started
 
 ### Prerequisites
