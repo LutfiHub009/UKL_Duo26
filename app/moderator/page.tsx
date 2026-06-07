@@ -105,7 +105,7 @@ export default function ModeratorDashboardPage() {
               <div className="flex flex-col items-center justify-center flex-1 py-40 gap-2">
                 <Loader2 className="animate-spin text-amber-500" size={36} />
                 <p className="text-sm text-muted-foreground">
-                  Loading Moderator Workspace...
+                  memuat dashboard Moderator...
                 </p>
               </div>
             ) : (

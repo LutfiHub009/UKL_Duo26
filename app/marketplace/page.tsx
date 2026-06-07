@@ -183,12 +183,11 @@ export default function MarketplacePage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6 mb-8">
             <div>
               <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                <ShoppingBag className="text-green-500" size={24} /> Performance
+                <ShoppingBag className="text-green-500" size={24} /> 
                 Suku Cadang Marketplace
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Jual dan beli suku cadang modifikasi performa tinggi dari
-                komunitas BuildTracker
+                pesan suku cadang modifikasi performa tinggi dari garasi kami
               </p>
             </div>
             
@@ -295,7 +294,7 @@ export default function MarketplacePage() {
                         <Loader2 className="animate-spin" size={14} />
                       ) : (
                         <>
-                          <ShoppingCart size={14} /> Beli
+                          <ShoppingCart size={14} /> Pesan
                         </>
                       )}
                     </button>

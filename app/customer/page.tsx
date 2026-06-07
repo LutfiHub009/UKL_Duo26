@@ -192,7 +192,7 @@ export default function CustomerDashboardPage() {
                         Selamat datang, {profile?.fullname || profile?.username || "Driver"}!
                       </h1>
                       <p className="text-muted-foreground text-sm mt-0.5">
-                        Customer Landing Dashboard
+                        Customer Dashboard
                       </p>
                     </div>
                     <span className="bg-green-500/10 text-green-500 border border-green-500/20 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
@@ -202,10 +202,10 @@ export default function CustomerDashboardPage() {
 
                   <div className="max-w-2xl">
                     <p className="text-lg font-semibold text-foreground">
-                      Selamat datang di dashboard customer. Temukan build Anda dan kelola proyek kendaraan dengan mudah bersama mekanik dari kami.
+                      Selamat datang di dashboard customer. ajukan build mobil Anda dan kelola proyek kendaraan dengan mudah bersama mekanik kami.
                     </p>
                     <p className="text-sm text-muted-foreground mt-3">
-                      Lihat semua build yang sedang berjalan dan detail kendaraan melalui halaman 'All Builds'.
+                      Lihat  build anda dan aktivitas yang sedang berjalan dan detail kendaraan melalui halaman &apos;My Builds&apos;.
                     </p>
                   </div>
 
