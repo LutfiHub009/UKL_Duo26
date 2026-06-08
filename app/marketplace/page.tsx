@@ -141,7 +141,7 @@ export default function MarketplacePage() {
   // 3. Eksekusi Pembelian Suku Cadang (POST ke /purchase/{id})
   const handlePurchasePart = async (listingId: number, partName: string) => {
     const confirmBuy = window.confirm(
-      `Apakah Anda yakin ingin membeli "${partName}"?`,
+      `Apakah Anda yakin ingin memesan "${partName}"?`,
     );
     if (!confirmBuy) return;
 
@@ -158,10 +158,10 @@ export default function MarketplacePage() {
         },
       );
 
-      if (!res.ok) throw new Error("Transaksi pembelian gagal.");
+      if (!res.ok) throw new Error("Transaksi pemesanan gagal.");
 
       toast.success(
-        `Berhasil membeli "${partName}"! Part siap dipasang di mobil Anda.`,
+        `Berhasil memesan "${partName}"! Part akan dipasang oleh mekanik Anda.`,
       );
       fetchMarketListings(); // Segarkan data pasar
     } catch (err) {
