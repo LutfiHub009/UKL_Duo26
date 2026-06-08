@@ -128,6 +128,8 @@ export function Sidebar({ activePage }: SidebarProps) {
             const active = activePage === item.id;
             const Icon = item.icon;
             const href = item.id === "dashboard" ? getDashboardHref() : item.href;
+            const role = (userProfile?.role || "").toLowerCase();
+            const label = item.id === "builds" ? (role === "mods" ? "All Builds" : "My Builds") : item.label;
 
             return (
               <Link
@@ -141,7 +143,7 @@ export function Sidebar({ activePage }: SidebarProps) {
                 )}
               >
                 <Icon size={20} />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium">{label}</span>
               </Link>
             );
           })}
